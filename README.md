@@ -4,9 +4,7 @@
 
 ## Requirements
 
-Make sure that all requirements related for your platform will be installed before main package installation.
-
-### Linux | Windows | macOS
+Please visit openweathermap.org and sign in\up to receive an API key.
 
 ### Docker
 
