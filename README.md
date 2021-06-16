@@ -63,6 +63,7 @@ HOST=localhost
 PORT=8888
 ENABLE_CORS=True
 API_KEY=key from openweathermap.org
+VOLUMES_ROOT=/d/projects/weather_api
 ```
 
 ### Linux | Windows | macOS
