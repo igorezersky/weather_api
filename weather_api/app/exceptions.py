@@ -29,13 +29,13 @@ class ExceptionsHandler:
     async def validation(self, request: Request, exc: Exceptions):
         return await self.system(request, exc)
 
-    async def system(self, request: Request, exc: Exceptions):
+    async def system(self, _: Request, exc: Exceptions):
         _logger.error(exc)
-        return await self.app.handle_exception(request, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return await self.app.handle_exception(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    async def http404(self, request: Request, exc: Exceptions):
+    async def http404(self, _: Request, exc: Exceptions):
         _logger.debug(exc)
-        return await self.app.handle_exception(request, status_code=status.HTTP_404_NOT_FOUND)
+        return await self.app.handle_exception(status_code=status.HTTP_404_NOT_FOUND)
 
     async def http500(self, request: Request, exc: Exceptions):
         return await self.system(request, exc)
