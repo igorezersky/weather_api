@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 
 from weather_api.app import scheme
 from weather_api.business import callbacks
@@ -7,5 +7,8 @@ router = APIRouter()
 
 
 @router.get('')
-async def weather(city: str, country: str) -> scheme.WeatherResponse:
-    return scheme.WeatherResponse(**await callbacks.weather(city, country))
+async def weather(
+        city: str = Query(..., example='Minsk'),
+        country: str = Query(..., example='by', max_length=2, min_length=2)
+) -> scheme.WeatherResponse:
+    return scheme.WeatherResponse(**await callbacks.weather(city, country.lower()))
