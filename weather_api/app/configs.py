@@ -6,7 +6,7 @@ import logging.config
 from pathlib import Path
 from typing import Any, Dict, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, SecretStr
 from ruamel.yaml import YAML
 from starlette.config import Config as StarletteConfig
 
@@ -21,6 +21,10 @@ class ServerConfigs(BaseModel):
 
 class PathConfigs(BaseModel):
     logs: Path
+
+
+class WeatherConfigs(BaseModel):
+    api_key: SecretStr
 
 
 class SystemConfigs(BaseModel):
@@ -56,25 +60,21 @@ class Configs:
     def __init__(self, package_dir: Union[str, Path], **kwargs) -> None:
         self._raw = SystemConfigs.load(package_dir, **kwargs)
 
-        if 'server' in self._raw.yml:
-            self.server = ServerConfigs(
-                protocol=self._raw.env.get('PROTOCOL', default=self._raw.yml['server']['protocol'], cast=str),
-                host=self._raw.env.get('HOST', default=self._raw.yml['server']['host'], cast=str),
-                port=self._raw.env.get('PORT', default=self._raw.yml['server']['port'], cast=int),
-                enable_cors=self._raw.env.get('ENABLE_CORS', default=self._raw.yml['server']['enable_cors'], cast=bool),
-                exceptions=self._raw.yml['server']['exceptions']
-            )
-
-        if 'path' in self._raw.yml:
-            self.path = PathConfigs(
-                logs=Path(self._raw.yml['path']['logs']),
-                static=Path(f'{package_dir}/app/static'),
-                templates=Path(f'{package_dir}/app/templates')
-            )
-            self.path.logs.mkdir(parents=True, exist_ok=True)
-
-        if 'logging' in self._raw.yml:
-            self.configure_logging()
+        self.server = ServerConfigs(
+            protocol=self._raw.env.get('PROTOCOL', default=self._raw.yml['server']['protocol'], cast=str),
+            host=self._raw.env.get('HOST', default=self._raw.yml['server']['host'], cast=str),
+            port=self._raw.env.get('PORT', default=self._raw.yml['server']['port'], cast=int),
+            enable_cors=self._raw.env.get('ENABLE_CORS', default=self._raw.yml['server']['enable_cors'], cast=bool),
+            exceptions=self._raw.yml['server']['exceptions']
+        )
+        self.path = PathConfigs(
+            logs=Path(self._raw.yml['path']['logs']),
+            static=Path(f'{package_dir}/app/static'),
+            templates=Path(f'{package_dir}/app/templates')
+        )
+        self.path.logs.mkdir(parents=True, exist_ok=True)
+        self.weather = WeatherConfigs(api_key=SecretStr(self._raw.env.get('API_KEY')))
+        self.configure_logging()
 
     def configure_logging(self) -> 'Configs':
         """ Add logs directory path to all file handlers and apply logging configs """

@@ -54,6 +54,17 @@ Do you agree to start processing (yes or no)? [yes]: yes
 
 ## Usage
 
+Create `.env` file with following variables:
+
+```text
+ENV=dev
+PROTOCOL=http
+HOST=localhost
+PORT=8888
+ENABLE_CORS=True
+API_KEY=key from openweathermap.org
+```
+
 ### Linux | Windows | macOS
 
 You can manually start project:
