@@ -1,17 +1,15 @@
 import logging
 from datetime import datetime
-from typing import Union
 
 import aiohttp
 
-from weather_api.app import scheme
-from weather_api.business import converters
+from weather_api.business import converters, scheme
 from weather_api.processors import configs
 
 _logger = logging.getLogger(__name__)
 
 
-async def weather(city: str, country: str) -> Union[scheme.WeatherResponse, scheme.ErrorResponse]:
+async def weather(city: str, country: str) -> scheme.WeatherResponse:
     """ Callback for `weather` endpoint """
 
     requested_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -27,7 +25,7 @@ async def weather(city: str, country: str) -> Union[scheme.WeatherResponse, sche
             result = await resp.json()
             if response_status != 200:
                 return scheme.ErrorResponse(message=result['message'])
-    return scheme.WeatherResponse(
+    return scheme.WeatherSuccessResponse(
         location_name=f'{city}, {country.upper()}',
         temperature_celsius=converters.kelvin2celsius(result['main']['temp']),
         temperature_fahrenheit=converters.kelvin2fahrenheit(result['main']['temp']),
