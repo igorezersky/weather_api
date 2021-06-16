@@ -11,4 +11,4 @@ async def weather(
     city: str = Query(..., example='Minsk'),
     country: str = Query(..., example='by', max_length=2, min_length=2)
 ) -> scheme.WeatherResponse:
-    return scheme.WeatherResponse(**await callbacks.weather(city, country.lower()))
+    return await callbacks.weather(city, country.lower())

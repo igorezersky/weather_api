@@ -14,3 +14,7 @@ class WeatherResponse(BaseModel):
     geo_coordinates: str = Field(..., example='[4.61, -74.08]')
     requested_time: str = Field(..., example='2018-01-09 11:57:00')
     forecast: str = Field(..., example='{}')
+
+
+class ErrorResponse(BaseModel):
+    message: str = Field(..., example='City not found')

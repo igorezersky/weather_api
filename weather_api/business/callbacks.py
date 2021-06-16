@@ -1,16 +1,17 @@
 import logging
 from datetime import datetime
-from typing import Dict
+from typing import Union
 
 import aiohttp
 
+from weather_api.app import scheme
 from weather_api.business import converters
 from weather_api.processors import configs
 
 _logger = logging.getLogger(__name__)
 
 
-async def weather(city: str, country: str) -> Dict:
+async def weather(city: str, country: str) -> Union[scheme.WeatherResponse, scheme.ErrorResponse]:
     """ Callback for `weather` endpoint """
 
     requested_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -23,10 +24,10 @@ async def weather(city: str, country: str) -> Dict:
                 )
         ) as resp:
             response_status = resp.status
-            if response_status != 200:
-                raise ValueError(resp.text())
             result = await resp.json()
-    return dict(
+            if response_status != 200:
+                return scheme.ErrorResponse(message=result['message'])
+    return scheme.WeatherResponse(
         location_name=f'{city}, {country.upper()}',
         temperature_celsius=converters.kelvin2celsius(result['main']['temp']),
         temperature_fahrenheit=converters.kelvin2fahrenheit(result['main']['temp']),
@@ -36,7 +37,7 @@ async def weather(city: str, country: str) -> Dict:
         humidity=f'{result["main"]["humidity"]}%',
         sunrise=converters.utc2time(result['sys']['sunrise'] + result['timezone']),
         sunset=converters.utc2time(result['sys']['sunset'] + result['timezone']),
-        geo_coordinates=f'[{result["coord"]["lon"]}, {result["coord"]["lat"]}]',
+        geo_coordinates=f'[{result["coord"]["lat"]:.2f}, {result["coord"]["lon"]:.2f}]',
         requested_time=requested_time,
         forecast=''
     )
