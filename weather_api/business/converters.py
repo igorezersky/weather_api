@@ -19,6 +19,32 @@ def utc2time(utctime: int) -> str:
     return datetime.utcfromtimestamp(utctime).strftime('%H:%M')
 
 
+def wind2beaufort(speed: float) -> str:
+    """ Convert wind speed to Beaufort scale (see https://en.wikipedia.org/wiki/Beaufort_scale) """
+
+    if speed <= 0.5:
+        beaufort = 'Calm'
+    elif speed <= 1.5:
+        beaufort = 'Light air'
+    elif speed <= 3.3:
+        beaufort = 'Light breeze'
+    elif speed <= 5.5:
+        beaufort = 'Gentle breeze'
+    elif speed <= 7.9:
+        beaufort = 'Moderate breeze'
+    elif speed <= 10.7:
+        beaufort = 'Fresh breeze'
+    elif speed <= 13.8:
+        beaufort = 'Strong breeze'
+    elif speed <= 17.1:
+        beaufort = 'High wind'
+    elif speed <= 20.7:
+        beaufort = 'Gale'
+    else:
+        beaufort = 'Storm'
+    return beaufort
+
+
 def clouds2condition(clouds: int) -> str:
     """ Convert clouds percentage to condition """
 
