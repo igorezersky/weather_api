@@ -30,7 +30,7 @@ async def weather(city: str, country: str) -> Dict:
         location_name=f'{city}, {country.upper()}',
         temperature=converters.kelvin2celsius(result['main']['temp']),
         wind=f'{result["wind"]["speed"]} m/s',
-        cloudiness=f'',
+        cloudiness=converters.clouds2condition(result['clouds']['all']),
         pressure=f'{result["main"]["pressure"]} hpa',
         humidity=f'{result["main"]["humidity"]}%',
         sunrise=converters.utc2time(result['sys']['sunrise'] + result['timezone']),
