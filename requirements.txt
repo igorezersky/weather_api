@@ -1,5 +1,5 @@
 uvicorn
-requests
+aiohttp
 starlette
 fastapi
 ruamel.yaml
