@@ -1,0 +1,7 @@
+uvicorn
+requests
+starlette
+fastapi
+ruamel.yaml
+pydantic
+
