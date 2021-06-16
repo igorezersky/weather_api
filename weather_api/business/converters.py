@@ -1,4 +1,4 @@
-import time
+from datetime import datetime
 
 
 def kelvin2celsius(temperature: float) -> str:
@@ -16,4 +16,4 @@ def kelvin2fahrenheit(temperature: float) -> str:
 def utc2time(utctime: int) -> str:
     """ Convert UTC timestamp to current time """
 
-    return time.strftime('%H:%M', time.localtime(utctime))
+    return datetime.utcfromtimestamp(utctime).strftime('%H:%M')
