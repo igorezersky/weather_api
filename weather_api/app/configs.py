@@ -25,6 +25,7 @@ class PathConfigs(BaseModel):
 
 class WeatherConfigs(BaseModel):
     api_key: SecretStr
+    api_url_format: str
 
 
 class SystemConfigs(BaseModel):
@@ -67,13 +68,12 @@ class Configs:
             enable_cors=self._raw.env.get('ENABLE_CORS', default=self._raw.yml['server']['enable_cors'], cast=bool),
             exceptions=self._raw.yml['server']['exceptions']
         )
-        self.path = PathConfigs(
-            logs=Path(self._raw.yml['path']['logs']),
-            static=Path(f'{package_dir}/app/static'),
-            templates=Path(f'{package_dir}/app/templates')
-        )
+        self.path = PathConfigs(logs=Path(self._raw.yml['path']['logs']))
         self.path.logs.mkdir(parents=True, exist_ok=True)
-        self.weather = WeatherConfigs(api_key=SecretStr(self._raw.env.get('API_KEY')))
+        self.weather = WeatherConfigs(
+            api_key=SecretStr(self._raw.env.get('API_KEY')),
+            **self._raw.yml['weather']
+        )
         self.configure_logging()
 
     def configure_logging(self) -> 'Configs':

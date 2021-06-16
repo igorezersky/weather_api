@@ -37,3 +37,5 @@ logging:
     handlers:
       - console
       - file
+weather:
+  api_url_format: http://api.openweathermap.org/data/2.5/weather?q={city},{country_code}&appid={api_key}
