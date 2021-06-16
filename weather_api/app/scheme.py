@@ -3,7 +3,8 @@ from pydantic import BaseModel, Field
 
 class WeatherResponse(BaseModel):
     location_name: str = Field(..., example='Bogota, CO')
-    temperature: str = Field(..., example='17 °C')
+    temperature_celsius: str = Field(..., example='17 °C')
+    temperature_fahrenheit: str = Field(..., example='71 °F')
     wind: str = Field(..., example='Gentle breeze, 3.6 m/s, west-northwest')
     cloudiness: str = Field(..., example='Scattered clouds')
     pressure: str = Field(..., example='1027 hpa')

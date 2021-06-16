@@ -28,8 +28,9 @@ async def weather(city: str, country: str) -> Dict:
             result = await resp.json()
     return dict(
         location_name=f'{city}, {country.upper()}',
-        temperature=converters.kelvin2celsius(result['main']['temp']),
-        wind=f'{result["wind"]["speed"]} m/s',
+        temperature_celsius=converters.kelvin2celsius(result['main']['temp']),
+        temperature_fahrenheit=converters.kelvin2fahrenheit(result['main']['temp']),
+        wind=f'{result["wind"]["speed"]:.1f} m/s',
         cloudiness=converters.clouds2condition(result['clouds']['all']),
         pressure=f'{result["main"]["pressure"]} hpa',
         humidity=f'{result["main"]["humidity"]}%',
