@@ -2,6 +2,8 @@
 
 ## Overview
 
+This is a small and simple weather API, created as a pet project to demonstrate my skills in API development 
+
 ## Requirements
 
 Please visit openweathermap.org and sign in\up to receive an API key.
