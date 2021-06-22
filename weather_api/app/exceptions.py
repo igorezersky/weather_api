@@ -5,6 +5,7 @@ from typing import Callable, Union, Type
 from fastapi import status
 from fastapi.exceptions import HTTPException, RequestValidationError
 from fastapi.requests import Request
+from fastapi.responses import JSONResponse
 
 Exceptions = Union[HTTPException, Type[Exception], Exception, RequestValidationError]
 _logger = logging.getLogger(__name__)
@@ -17,25 +18,29 @@ class Handler:
 
 
 class ExceptionsHandler:
-    def __init__(self, app=None) -> None:
-        self.app = app
+    def __init__(self) -> None:
         self.handlers = [
             Handler(exception=RequestValidationError, callback=self.validation),
             Handler(exception=Exception, callback=self.system),
-            Handler(exception=status.HTTP_404_NOT_FOUND, callback=self.http404),
-            Handler(exception=status.HTTP_500_INTERNAL_SERVER_ERROR, callback=self.http500),
+            Handler(exception=HTTPException, callback=self.http)
         ]
 
-    async def validation(self, request: Request, exc: Exceptions):
-        return await self.system(request, exc)
+    @staticmethod
+    async def handle_exception(status_code: int, message: str):
+        """ Return formatted response for received exception """
+
+        return JSONResponse(content=dict(error=message), status_code=status_code)
+
+    async def validation(self, _: Request, exc: Exceptions):
+        return await self.handle_exception(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, message=exc.detail)
 
     async def system(self, _: Request, exc: Exceptions):
         _logger.error(exc)
-        return await self.app.handle_exception(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return await self.handle_exception(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            message='Internal server error'
+        )
 
-    async def http404(self, _: Request, exc: Exceptions):
+    async def http(self, _: Request, exc: Exceptions):
         _logger.debug(exc)
-        return await self.app.handle_exception(status_code=status.HTTP_404_NOT_FOUND)
-
-    async def http500(self, request: Request, exc: Exceptions):
-        return await self.system(request, exc)
+        return await self.handle_exception(status_code=exc.status_code, message=exc.detail)

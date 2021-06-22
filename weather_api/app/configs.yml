@@ -3,9 +3,6 @@ server:
   host: localhost
   port: 8080
   enable_cors: false
-  exceptions:
-    '404': The requested page can't be found
-    '500': Oops! Something went wrong
 path:
   logs: logs
 logging:

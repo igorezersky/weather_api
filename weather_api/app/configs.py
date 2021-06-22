@@ -4,7 +4,7 @@ provided with `Configs` class help.
 
 import logging.config
 from pathlib import Path
-from typing import Any, Dict, Union
+from typing import Any, Union
 
 from pydantic import BaseModel, SecretStr
 from ruamel.yaml import YAML
@@ -15,7 +15,6 @@ class ServerConfigs(BaseModel):
     protocol: str
     host: str
     port: int
-    exceptions: Dict[str, str]
     enable_cors: bool
 
 
@@ -65,8 +64,7 @@ class Configs:
             protocol=self._raw.env.get('PROTOCOL', default=self._raw.yml['server']['protocol'], cast=str),
             host=self._raw.env.get('HOST', default=self._raw.yml['server']['host'], cast=str),
             port=self._raw.env.get('PORT', default=self._raw.yml['server']['port'], cast=int),
-            enable_cors=self._raw.env.get('ENABLE_CORS', default=self._raw.yml['server']['enable_cors'], cast=bool),
-            exceptions=self._raw.yml['server']['exceptions']
+            enable_cors=self._raw.env.get('ENABLE_CORS', default=self._raw.yml['server']['enable_cors'], cast=bool)
         )
         self.path = PathConfigs(logs=Path(self._raw.yml['path']['logs']))
         self.path.logs.mkdir(parents=True, exist_ok=True)

@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 
 import aiohttp
+from fastapi import HTTPException, status
 
 from weather_api.business import converters, scheme
 from weather_api.processors import configs
@@ -23,9 +24,9 @@ async def weather(city: str, country: str) -> scheme.WeatherResponse:
         ) as resp:
             response_status = resp.status
             result = await resp.json()
-            if response_status != 200:
-                return scheme.ErrorResponse(message=result['message'])
-    return scheme.WeatherSuccessResponse(
+            if response_status != status.HTTP_200_OK:
+                raise HTTPException(detail=result['message'], status_code=response_status)
+    return scheme.WeatherResponse(
         location_name=f'{city}, {country.upper()}',
         temperature_celsius=converters.kelvin2celsius(result['main']['temp']),
         temperature_fahrenheit=converters.kelvin2fahrenheit(result['main']['temp']),

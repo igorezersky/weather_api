@@ -1,9 +1,7 @@
-from typing import Union
-
 from pydantic import BaseModel, Field
 
 
-class WeatherSuccessResponse(BaseModel):
+class WeatherResponse(BaseModel):
     location_name: str = Field(..., example='Bogota, CO')
     temperature_celsius: str = Field(..., example='17 °C')
     temperature_fahrenheit: str = Field(..., example='71 °F')
@@ -16,10 +14,3 @@ class WeatherSuccessResponse(BaseModel):
     geo_coordinates: str = Field(..., example='[4.61, -74.08]')
     requested_time: str = Field(..., example='2018-01-09 11:57:00')
     forecast: str = Field(..., example='{}')
-
-
-class ErrorResponse(BaseModel):
-    message: str = Field(..., example='City not found')
-
-
-WeatherResponse = Union[WeatherSuccessResponse, ErrorResponse]

@@ -1,7 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 from starlette.routing import NoMatchFound
 
 from weather_api.app.configs import Configs
@@ -16,10 +15,8 @@ class App:
         if self.configs.enable_cors:
             self.enable_cors()
 
-        if exceptions_handler:
-            exceptions_handler.app = self
-            for handler in exceptions_handler.handlers:
-                self.server.add_exception_handler(handler.exception, handler.callback)
+        for handler in exceptions_handler.handlers:
+            self.server.add_exception_handler(handler.exception, handler.callback)
 
     def enable_cors(self) -> 'App':
         """ Enable CORS for all origins, methods and headers. Do not enable CORS on production servers
@@ -67,17 +64,6 @@ class App:
             except NoMatchFound:
                 pass
         raise NoMatchFound()
-
-    async def handle_exception(self, status_code: int):
-        """ Return formatted response for received exception """
-
-        return JSONResponse(
-            content=dict(
-                status_code=status_code,
-                message=dict(text=self.configs.exceptions[f'{status_code}'])
-            ),
-            status_code=status_code
-        )
 
     def include_routers(self) -> 'App':
         from weather_api.app.routes import index, weather
