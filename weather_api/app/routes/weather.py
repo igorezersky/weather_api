@@ -1,14 +1,23 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, status
 
-from weather_api.business import callbacks, scheme
+from weather_api.app import exceptions
+from weather_api.business import callbacks, scheme, errors
 
-router = APIRouter()
+router = APIRouter(
+    responses={
+        status.HTTP_422_UNPROCESSABLE_ENTITY: {'model': exceptions.ErrorResponse},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {'model': exceptions.ErrorResponse}
+    }
+)
 
 
 @router.get(
     '',
     summary='Get weather for specified city',
-    response_model=scheme.WeatherResponse
+    response_model=scheme.WeatherResponse,
+    responses={
+        status.HTTP_404_NOT_FOUND: {'model': errors.NotFound}
+    }
 )
 async def weather(
     city: str = Query(..., example='Bogota'),

@@ -6,9 +6,14 @@ from fastapi import status
 from fastapi.exceptions import HTTPException, RequestValidationError
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
 Exceptions = Union[HTTPException, Type[Exception], Exception, RequestValidationError]
 _logger = logging.getLogger(__name__)
+
+
+class ErrorResponse(BaseModel):
+    error: str
 
 
 @dataclass
@@ -26,13 +31,16 @@ class ExceptionsHandler:
         ]
 
     @staticmethod
-    async def handle_exception(status_code: int, message: str):
+    async def handle_exception(status_code: int, message: str) -> JSONResponse:
         """ Return formatted response for received exception """
 
         return JSONResponse(content=dict(error=message), status_code=status_code)
 
     async def validation(self, _: Request, exc: Exceptions):
-        return await self.handle_exception(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, message=exc.detail)
+        return await self.handle_exception(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            message=exc.detail
+        )
 
     async def system(self, _: Request, exc: Exceptions):
         _logger.error(exc)
