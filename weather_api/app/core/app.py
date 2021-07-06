@@ -3,8 +3,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.routing import NoMatchFound
 
-from weather_api.app.configs import Configs
-from weather_api.app.exceptions import ExceptionsHandler
+from weather_api.app.core.exceptions import ExceptionsHandler
+from weather_api.configs import Configs
 
 
 class App:

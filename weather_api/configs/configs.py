@@ -48,7 +48,7 @@ class SystemConfigs(BaseModel):
         env_config = StarletteConfig(env_path if env_path.exists() else '')
 
         yaml = YAML()
-        yml_path = Path(yml_path or f'{package_dir}/app/configs.yml')
+        yml_path = Path(yml_path or f'{package_dir}/configs/configs.yml')
         with yml_path.open('r', encoding='utf-8') as fp:
             yml_config = yaml.load(fp)
         return cls(yml=yml_config, env=env_config)
