@@ -8,7 +8,7 @@ from weather_api.configs import Configs
 
 class App:
     def __init__(self, configs: Configs) -> None:
-        self.server = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+        self.server = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)  # trick to handle documentation hosting
         self.configs = configs.server
 
         if self.configs.enable_cors:
@@ -62,8 +62,10 @@ class App:
         raise NoMatchFound()
 
     def include_routers(self) -> 'App':
+        """ Main application method: connect all exceptions handlers, endpoints and blueprints to app """
+
         from weather_api.app.routes import index, weather
-        from weather_api.app.core import exceptions as _
+        from weather_api.app.core import exceptions as _  # required for exceptions handlers connection
 
         self.server.include_router(weather.router, prefix='/weather', tags=['weather'])
         self.server.include_router(index.router, prefix='', tags=['index'])
