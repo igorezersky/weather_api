@@ -3,20 +3,16 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.routing import NoMatchFound
 
-from weather_api.app.core.exceptions import ExceptionsHandler
 from weather_api.configs import Configs
 
 
 class App:
-    def __init__(self, configs: Configs, exceptions_handler: ExceptionsHandler) -> None:
+    def __init__(self, configs: Configs) -> None:
         self.server = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
         self.configs = configs.server
 
         if self.configs.enable_cors:
             self.enable_cors()
-
-        for handler in exceptions_handler.handlers:
-            self.server.add_exception_handler(handler.exception, handler.callback)
 
     def enable_cors(self) -> 'App':
         """ Enable CORS for all origins, methods and headers. Do not enable CORS on production servers
@@ -67,6 +63,7 @@ class App:
 
     def include_routers(self) -> 'App':
         from weather_api.app.routes import index, weather
+        from weather_api.app.core import exceptions as _
 
         self.server.include_router(weather.router, prefix='/weather', tags=['weather'])
         self.server.include_router(index.router, prefix='', tags=['index'])
