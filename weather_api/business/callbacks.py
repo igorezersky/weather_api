@@ -1,31 +1,22 @@
-import logging
 from datetime import datetime
 
-import aiohttp
-from fastapi import HTTPException, status
-
 from weather_api.business import converters, scheme
+from weather_api.business.network import Network
 from weather_api.processors import configs
-
-_logger = logging.getLogger(__name__)
 
 
 async def weather(city: str, country: str) -> scheme.WeatherResponse:
     """ Callback for `weather` endpoint """
 
     requested_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    async with aiohttp.ClientSession() as session:
-        async with session.post(
-                url=configs.weather.api_url_format.format(
-                    city=city,
-                    country_code=country,
-                    api_key=configs.weather.api_key.get_secret_value()
-                )
-        ) as resp:
-            response_status = resp.status
-            result = await resp.json()
-            if response_status != status.HTTP_200_OK:
-                raise HTTPException(detail=result['message'], status_code=response_status)
+    async with Network() as network:
+        result = await network.post(
+            url=configs.weather.api_url_format.format(
+                city=city,
+                country_code=country,
+                api_key=configs.weather.api_key.get_secret_value()
+            )
+        )
     return scheme.WeatherResponse(
         location_name=f'{city}, {country.upper()}',
         temperature_celsius=converters.kelvin2celsius(result['main']['temp']),
