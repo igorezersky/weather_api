@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a small and simple weather API, created as a pet project to demonstrate my skills in API development 
+This is a RESTful and asynchronous (thanks [FastAPI](https://fastapi.tiangolo.com)) weather API, created as a pet project to demonstrate my skills in API development.
 
 ## Requirements
 
