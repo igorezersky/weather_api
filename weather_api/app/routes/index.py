@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.openapi.utils import get_openapi
-from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse
+from fastapi.responses import JSONResponse, HTMLResponse, RedirectResponse
 
 from weather_api.processors import app
 
@@ -25,4 +25,7 @@ async def documentation():
 
 @router.get('/healthcheck')
 async def healthcheck():
-    return PlainTextResponse(content='It works', status_code=status.HTTP_200_OK)
+    return HTMLResponse(
+        content=f'It works. Explore the documentation at <a href="{app.url_for("index.documentation")}">/docs</a>',
+        status_code=status.HTTP_200_OK
+    )
