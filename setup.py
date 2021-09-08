@@ -6,18 +6,21 @@ with open('README.md', 'r', encoding='utf-8') as fp:
     long_description = fp.read()
 
 install_requires = []
-with open('requirements.txt', encoding='utf-8') as fp:
-    for line in fp:
-        if line.startswith('git'):
-            install_requires.append(f'{line.split("/")[-1].split(".git")[0]} @ {line}')
-        else:
-            install_requires.append(line)
+for file in ['base', 'prod']:
+    with open(f'requirements/{file}.txt', encoding='utf-8') as fp:
+        for line in fp:
+            if line.startswith('git'):  # handle private repos
+                install_requires.append(f'{line.split("/")[-1].split(".git")[0]} @ {line}')
+            elif line.startswith('-'):
+                continue  # ignore other files including
+            else:
+                install_requires.append(line)
 
 setuptools.setup(
     name='weather_api',
     version=__version__,
-    author='Igor Ezersky',
-    author_email='igor.ezersky.private@gmail.com',
+    author='Ihar Yazerski',
+    author_email='ihar.yazerski@outlook.com',
     description='',
     include_package_data=True,
     long_description=long_description,

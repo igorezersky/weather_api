@@ -1,26 +1,51 @@
-{% set PROJECT_ROOT = '/home/igore/weather_api' %}
+{% set PROJECT_ROOT = '/home/admin/' + PROJECT_NAME %}
 {% set VIRTUAL_ENV = PROJECT_ROOT + '/venv' %}
 version: "3"
 services:
-  weather_api_{{ ENV }}:
+  {{ PROJECT_NAME }}-backend-{{ ENV }}:
     build:
       context: ..
       dockerfile: deploy/Dockerfile
       args:
-        PROJECT_USER: igore
+        PROJECT_NAME: {{ PROJECT_NAME }}
+        PROJECT_USER: admin
         VIRTUAL_ENV: {{ VIRTUAL_ENV }}
-    image: weather_api:{{ ENV }}
-    container_name: weather_api_{{ ENV }}
+    image: igorezersky/{{ PROJECT_NAME }}:{{ ENV }}
+    container_name: {{ PROJECT_NAME }}-backend-{{ ENV }}
     restart: always
     expose:
       - "8000"
+    networks:
+      - {{ PROJECT_NAME }}-{{ ENV }}
+    {% if ENV == 'prod' %}
+      - traefik-public
+    labels:
+      # Enable Traefik for this specific "backend" service
+      - traefik.enable=true
+      # Define the port inside of the Docker service to use
+      - traefik.http.services.{{ PROJECT_NAME }}-backend.loadbalancer.server.port=8000
+      # Make Traefik use this domain in HTTP
+      - traefik.http.routers.{{ PROJECT_NAME }}-backend-http.entrypoints=http
+      - traefik.http.routers.{{ PROJECT_NAME }}-backend-http.rule=Host(`{{ HOST }}`)
+      # Use the traefik-public network (declared below)
+      - traefik.docker.network=traefik-public
+      # Make Traefik use this domain in HTTPS
+      - traefik.http.routers.{{ PROJECT_NAME }}-backend-https.entrypoints=https
+      - traefik.http.routers.{{ PROJECT_NAME }}-backend-https.rule=Host(`{{ HOST }}`)
+      - traefik.http.routers.{{ PROJECT_NAME }}-backend-https.tls=true
+      # Use the "le" (Let's Encrypt) resolver
+      - traefik.http.routers.{{ PROJECT_NAME }}-backend-https.tls.certresolver=le
+      # https-redirect middleware to redirect HTTP to HTTPS
+      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
+      # Middleware to redirect HTTP to HTTPS
+      - traefik.http.routers.{{ PROJECT_NAME }}-backend-http.middlewares=https-redirect
+    {% else %}
     ports:
       - {{ PORT }}:8000
-    networks:
-      - weather_api_{{ ENV }}
-    command: uvicorn run:server --port 8000 --host 0.0.0.0 --proxy-headers --forwarded-allow-ips '*'
+    {% endif %}
+    command: uvicorn run:server --port 8000 --host 0.0.0.0
     environment:
-      PROTOCOL: {{ PROTOCOL }}
       HOST: {{ HOST }}
       PORT: {{ PORT }}
       ENABLE_CORS: "{{ ENABLE_CORS }}"
@@ -28,6 +53,10 @@ services:
     volumes:
       - {{ VOLUMES_ROOT }}/logs:{{ PROJECT_ROOT }}/logs
 networks:
-  weather_api_{{ ENV }}:
+  {{ PROJECT_NAME }}-{{ ENV }}:
     external:
-      name: weather_api_{{ ENV }}
+      name: {{ PROJECT_NAME }}-{{ ENV }}
+  {% if ENV == 'prod' %}
+  traefik-public:
+    external: true
+  {% endif %}

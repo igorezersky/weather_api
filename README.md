@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a RESTful and asynchronous (thanks [FastAPI](https://fastapi.tiangolo.com)) weather API, created as a pet project to demonstrate my skills in API development.
+This is a RESTful and asynchronous (created via [igorezersky/cookiecutter-api](https://github.com/igorezersky/cookiecutter-api)) weather API, created as a pet project to demonstrate my skills in API development.
 
 ## Requirements
 
@@ -58,12 +58,12 @@ Create `.env` file with following variables:
 
 ```text
 ENV=dev
-PROTOCOL=http
+PROJECT_NAME=weatherapi
 HOST=localhost
 PORT=8888
 ENABLE_CORS=True
 API_KEY=key from openweathermap.org
-VOLUMES_ROOT=/d/projects/weather_api
+VOLUMES_ROOT=/$HOME/projects/weather_api
 ```
 
 ### Linux | Windows | macOS

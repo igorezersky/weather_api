@@ -5,21 +5,21 @@ FROM python:3.9-buster
 ARG PROJECT_USER
 RUN adduser --disabled-password ${PROJECT_USER}
 WORKDIR /home/${PROJECT_USER}
-
 USER ${PROJECT_USER}
 
 # create project dir
-RUN mkdir weather_api
-WORKDIR /home/${PROJECT_USER}/weather_api
+ARG PROJECT_NAME
+RUN mkdir ${PROJECT_NAME}
+WORKDIR /home/${PROJECT_USER}/${PROJECT_NAME}
 RUN mkdir logs
 
 # install requirements
-COPY *.txt ./
+COPY requirements requirements
 ARG VIRTUAL_ENV
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN python -m pip install --upgrade pip setuptools wheel
-RUN pip install -r requirements.txt
+RUN pip install -r requirements/prod.txt
 
 # copy project files
 COPY LICENSE *.py *.in ./
