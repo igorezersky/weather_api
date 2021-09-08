@@ -10,24 +10,10 @@ from pydantic import BaseModel, SecretStr
 from ruamel.yaml import YAML
 from starlette.config import Config as StarletteConfig
 
-
-class ServerConfigs(BaseModel):
-    protocol: str
-    host: str
-    port: int
-    enable_cors: bool
+__all__ = ['ServerConfigs', 'WeatherConfigs', 'PathConfigs', 'Configs']
 
 
-class PathConfigs(BaseModel):
-    logs: Path
-
-
-class WeatherConfigs(BaseModel):
-    api_key: SecretStr
-    api_url_format: str
-
-
-class SystemConfigs(BaseModel):
+class Context(BaseModel):
     yml: Any
     env: Any
 
@@ -37,7 +23,7 @@ class SystemConfigs(BaseModel):
         package_dir: Union[str, Path],
         yml_path: Union[str, Path] = None,
         env_path: Union[str, Path] = None
-    ):
+    ) -> 'Context':
         """ Load configs from environment and YAML file """
 
         package_dir = Path(package_dir)
@@ -54,33 +40,61 @@ class SystemConfigs(BaseModel):
         return cls(yml=yml_config, env=env_config)
 
 
+class ServerConfigs(BaseModel):
+    host: str
+    port: int
+    enable_cors: bool
+
+    @classmethod
+    def from_context(cls, context: Context) -> 'ServerConfigs':
+        return cls(
+            host=context.env.get('HOST', default=context.yml['server']['host'], cast=str),
+            port=context.env.get('PORT', default=context.yml['server']['port'], cast=int),
+            enable_cors=context.env.get('ENABLE_CORS', default=context.yml['server']['enable_cors'], cast=bool)
+        )
+
+
+class PathConfigs(BaseModel):
+    logs: Path
+
+    @classmethod
+    def from_context(cls, context: Context) -> 'PathConfigs':
+        obj = cls(logs=Path(context.yml['path']['logs']))
+        obj.logs.mkdir(parents=True, exist_ok=True)
+        return obj
+
+
+class WeatherConfigs(BaseModel):
+    api_key: SecretStr
+    api_url_format: str
+
+    @classmethod
+    def from_context(cls, context: Context) -> 'WeatherConfigs':
+        return cls(
+            api_key=SecretStr(context.env.get('API_KEY')),
+            **context.yml['weather']
+        )
+
+
 class Configs:
     """ Container of all system configs """
 
     def __init__(self, package_dir: Union[str, Path], **kwargs) -> None:
-        self._raw = SystemConfigs.load(package_dir, **kwargs)
+        self._context = Context.load(package_dir, **kwargs)
 
-        self.server = ServerConfigs(
-            protocol=self._raw.env.get('PROTOCOL', default=self._raw.yml['server']['protocol'], cast=str),
-            host=self._raw.env.get('HOST', default=self._raw.yml['server']['host'], cast=str),
-            port=self._raw.env.get('PORT', default=self._raw.yml['server']['port'], cast=int),
-            enable_cors=self._raw.env.get('ENABLE_CORS', default=self._raw.yml['server']['enable_cors'], cast=bool)
-        )
-        self.path = PathConfigs(logs=Path(self._raw.yml['path']['logs']))
-        self.path.logs.mkdir(parents=True, exist_ok=True)
-        self.weather = WeatherConfigs(
-            api_key=SecretStr(self._raw.env.get('API_KEY')),
-            **self._raw.yml['weather']
-        )
+        self.server = ServerConfigs.from_context(self._context)
+        self.path = PathConfigs.from_context(self._context)
+        self.weather = WeatherConfigs.from_context(self._context)
+
         self.configure_logging()
 
     def configure_logging(self) -> 'Configs':
         """ Add logs directory path to all file handlers and apply logging configs """
 
-        if 'handlers' in self._raw.yml['logging']:
-            for key in self._raw.yml['logging']['handlers']:
-                handler_fname = self._raw.yml['logging']['handlers'][key].get('filename')
+        if 'handlers' in self._context.yml['logging']:
+            for key in self._context.yml['logging']['handlers']:
+                handler_fname = self._context.yml['logging']['handlers'][key].get('filename')
                 if handler_fname:
-                    self._raw.yml['logging']['handlers'][key]['filename'] = f'{self.path.logs}/{handler_fname}'
-        logging.config.dictConfig(self._raw.yml['logging'])
+                    self._context.yml['logging']['handlers'][key]['filename'] = f'{self.path.logs}/{handler_fname}'
+        logging.config.dictConfig(self._context.yml['logging'])
         return self

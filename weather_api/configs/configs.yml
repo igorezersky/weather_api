@@ -1,5 +1,4 @@
 server:
-  protocol: http
   host: localhost
   port: 8080
   enable_cors: false
