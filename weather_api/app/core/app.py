@@ -1,6 +1,8 @@
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from starlette.routing import NoMatchFound
 
 from weather_api.configs import Configs
@@ -13,6 +15,14 @@ class App:
 
         if self.configs.enable_cors:
             self.enable_cors()
+
+        # mount templates
+        if configs.path and configs.path.templates and configs.path.templates.exists():
+            self.templates = Jinja2Templates(configs.path.templates.as_posix())
+
+        # mount static
+        if configs.path and configs.path.static and configs.path.static.exists():
+            self.server.mount('/static', StaticFiles(directory=configs.path.static.as_posix()), name='static')
 
     def enable_cors(self) -> 'App':
         """ Enable CORS for all origins, methods and headers. Do not enable CORS on production servers
@@ -60,6 +70,12 @@ class App:
             except NoMatchFound:
                 pass
         raise NoMatchFound()
+
+    async def render_template(self, template: str, request: Request, status_code: int = status.HTTP_200_OK, **kwargs):
+        """ Render specified `template` with data from `kwargs` """
+
+        kwargs.update(request=request, urlfor=self.url_for)
+        return self.templates.TemplateResponse(name=template, context=kwargs, status_code=status_code)
 
     def include_routers(self) -> 'App':
         """ Main application method: connect all exceptions handlers, endpoints and blueprints to app """

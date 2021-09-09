@@ -4,7 +4,7 @@ provided with `Configs` class help.
 
 import logging.config
 from pathlib import Path
-from typing import Any, Union
+from typing import Any, Optional, Union
 
 from pydantic import BaseModel, SecretStr
 from ruamel.yaml import YAML
@@ -16,6 +16,7 @@ __all__ = ['ServerConfigs', 'WeatherConfigs', 'PathConfigs', 'Configs']
 class Context(BaseModel):
     yml: Any
     env: Any
+    package_dir: Path
 
     @classmethod
     def load(
@@ -37,7 +38,7 @@ class Context(BaseModel):
         yml_path = Path(yml_path or f'{package_dir}/configs/configs.yml')
         with yml_path.open('r', encoding='utf-8') as fp:
             yml_config = yaml.load(fp)
-        return cls(yml=yml_config, env=env_config)
+        return cls(yml=yml_config, env=env_config, package_dir=package_dir)
 
 
 class ServerConfigs(BaseModel):
@@ -56,10 +57,16 @@ class ServerConfigs(BaseModel):
 
 class PathConfigs(BaseModel):
     logs: Path
+    static: Optional[Path] = None
+    templates: Optional[Path] = None
 
     @classmethod
     def from_context(cls, context: Context) -> 'PathConfigs':
-        obj = cls(logs=Path(context.yml['path']['logs']))
+        obj = cls(
+            logs=Path(context.yml['path']['logs']),
+            static=Path(f'{context.package_dir}/app/static'),
+            templates=Path(f'{context.package_dir}/app/templates')
+        )
         obj.logs.mkdir(parents=True, exist_ok=True)
         return obj
 

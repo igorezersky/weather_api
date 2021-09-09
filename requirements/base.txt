@@ -3,6 +3,10 @@ fastapi>=0.65,<0.68
 starlette>=0.14,<0.17
 aiohttp>=3.7,<3.9
 
+# static files ant templates
+jinja2
+aiofiles
+
 # data
 pydantic>=1.8,<1.10
 ruamel.yaml>=0.17,<0.19
