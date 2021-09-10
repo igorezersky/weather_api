@@ -14,7 +14,7 @@ services:
     container_name: {{ PROJECT_NAME }}-backend-{{ ENV }}
     restart: always
     expose:
-      - "8000"
+      - "{{ PORT }}"
     networks:
       - {{ PROJECT_NAME }}-{{ ENV }}
     {% if ENV == 'prod' %}
@@ -23,7 +23,7 @@ services:
       # Enable Traefik for this specific "backend" service
       - traefik.enable=true
       # Define the port inside of the Docker service to use
-      - traefik.http.services.{{ PROJECT_NAME }}-backend.loadbalancer.server.port=8000
+      - traefik.http.services.{{ PROJECT_NAME }}-backend.loadbalancer.server.port={{ PORT }}
       # Make Traefik use this domain in HTTP
       - traefik.http.routers.{{ PROJECT_NAME }}-backend-http.entrypoints=http
       - traefik.http.routers.{{ PROJECT_NAME }}-backend-http.rule=Host(`{{ HOST }}`)
@@ -42,9 +42,9 @@ services:
       - traefik.http.routers.{{ PROJECT_NAME }}-backend-http.middlewares=https-redirect
     {% else %}
     ports:
-      - {{ PORT }}:8000
+      - {{ PORT }}:{{ PORT }}
     {% endif %}
-    command: uvicorn run:server --port 8000 --host 0.0.0.0
+    command: uvicorn run:server --port {{ PORT }} --host 0.0.0.0
     environment:
       HOST: {{ HOST }}
       PORT: {{ PORT }}
