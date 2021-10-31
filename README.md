@@ -58,7 +58,7 @@ Create `.env` file with following variables:
 
 ```text
 ENV=dev
-PROJECT_NAME=weatherapi
+PROJECT_SLUG=weatherapi
 HOST=localhost
 PORT=8888
 ENABLE_CORS=True

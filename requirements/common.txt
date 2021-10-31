@@ -1,0 +1,15 @@
+# server
+fastapi>=0.68,<0.71
+starlette>=0.15,<0.18
+uvicorn>=0.13,<0.16
+
+# static files ant templates
+jinja2>=2.11,<4.0
+aiofiles>=0.6,<0.9
+
+# data
+pydantic>=1.6,<1.10
+ruamel.yaml>=0.17,<0.19
+
+# business logic
+aiohttp>=3.7,<3.9
