@@ -53,7 +53,7 @@ class App:
             forwarded_allow_ips='*'
         )
 
-    def url_for(self, endpoint: str, **kwargs) -> str:
+    def url_for(self, endpoint: str, path_params: dict = None, query_params: dict = None) -> str:
         """ Generate relative URL for `endpoint` """
 
         endpoint_parts = endpoint.split('.')
@@ -65,7 +65,10 @@ class App:
             if endpoint_name != route.name or any(tag not in getattr(route, 'tags', []) for tag in endpoint_tags):
                 continue
             try:
-                url = route.url_path_for(endpoint_name, **kwargs)
+                url = route.url_path_for(endpoint_name, **(path_params or {}))
+                if query_params:
+                    query = '&'.join(f'{k}={v}' for k, v in query_params.items())
+                    url = f'{url}?{query}'
                 return url
             except NoMatchFound:
                 pass
@@ -81,9 +84,9 @@ class App:
         """ Main application method: connect all exceptions handlers, endpoints and blueprints to app """
 
         from weather_api.app.routes import index, weather
-        from weather_api.app.core import exceptions as _  # required for exceptions handlers connection
+        from weather_api.app.core import exceptions  # noqa
 
+        self.server.include_router(index.router, tags=['index'])
         self.server.include_router(weather.router, prefix='/weather', tags=['weather'])
-        self.server.include_router(index.router, prefix='', tags=['index'])
 
         return self
