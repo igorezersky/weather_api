@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Query, status
 
 from weather_api.app.core import exceptions
-from weather_api.business import callbacks, scheme, errors
+from weather_api.services import callbacks, scheme, errors
 
 router = APIRouter(
     responses={

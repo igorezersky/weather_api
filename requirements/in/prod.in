@@ -1,0 +1,16 @@
+# server
+fastapi
+starlette
+uvicorn
+gunicorn
+
+# static files ant templates
+jinja2
+aiofiles
+
+# data
+pydantic
+ruamel.yaml
+
+# business logic
+aiohttp[speedups]
