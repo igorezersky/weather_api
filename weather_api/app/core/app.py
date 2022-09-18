@@ -60,7 +60,7 @@ class App:
         endpoint_tags = endpoint_parts[:-1]
         endpoint_name = endpoint_parts[-1]
         if not endpoint_tags or not endpoint_name:
-            raise NoMatchFound(endpoint)
+            raise NoMatchFound(endpoint, path_params)
         for route in self.server.routes:
             if endpoint_name != route.name or any(tag not in getattr(route, 'tags', []) for tag in endpoint_tags):
                 continue
@@ -72,9 +72,9 @@ class App:
                 return url
             except NoMatchFound:
                 pass
-        raise NoMatchFound()
+        raise NoMatchFound(endpoint, path_params)
 
-    async def render_template(self, template: str, request: Request, status_code: int = status.HTTP_200_OK, **kwargs):
+    def render_template(self, template: str, request: Request, status_code: int = status.HTTP_200_OK, **kwargs):
         """ Render specified `template` with data from `kwargs` """
 
         kwargs.update(request=request, urlfor=self.url_for)

@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from weather_api.business import converters, scheme
-from weather_api.business.network import Network
+from weather_api.services import converters, scheme
+from weather_api.services.network import Network
 from weather_api.processors import configs
 
 
