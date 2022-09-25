@@ -25,7 +25,7 @@ setuptools.setup(
     include_package_data=True,
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://weatherapi.igorezersky.digital/',
+    url='https://weatherapi.iyazerski.me/',
     packages=setuptools.find_packages(exclude=('tests*',)),
     install_requires=sorted(requirements),
     classifiers=[

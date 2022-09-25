@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a RESTful and asynchronous (created via [igorezersky/cookiecutter-api](https://github.com/igorezersky/cookiecutter-api)) weather API, created as a pet project to demonstrate my skills in API development.
+This is a RESTful and asynchronous (created via [iyazerski/cookiecutter-api](https://github.com/iyazerski/cookiecutter-api)) weather API, created as a pet project to demonstrate my skills in API development.
 
 ## Requirements
 
@@ -26,7 +26,7 @@ executing the following commands will ensure that `weather_api` is installed cor
 Clone repository and create [virtual environment](https://docs.python.org/3/library/venv.html):
 
 ```console
-foo@bar:~$ git clone https://github.com/igorezersky/weather_api && cd weather_api
+foo@bar:~$ git clone https://github.com/iyazerski/weather_api && cd weather_api
 foo@bar:~/weather_api$ python -m venv venv && source venv/bin/activate
 foo@bar:~/weather_api$ python -m pip install --upgrade pip wheel setuptools
 ```
